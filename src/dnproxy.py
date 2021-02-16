@@ -11,32 +11,6 @@ from pyfiglet import Figlet
 import binascii
 import time
 
-# General config
-f = Figlet(font='slant')
-
-# Load Config
-with open("dnproxy.yml", "r") as configfile:
-    cfg = yaml.load(configfile, Loader=yaml.FullLoader)
-
-# create logger
-logger = logging.getLogger('dnproxy')
-logger.setLevel(logging.DEBUG)
-ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
-formatter = logging.Formatter("%(asctime)s - %(name)s - [%(levelname)s] - %(message)s ") # I am printing thread id here
-ch.setFormatter(formatter)
-logger.addHandler(ch)
-
-# Init
-logger.info(f.renderText('dnproxy'))
-
-HOST = cfg['dnproxy']['host']
-PORT = cfg['dnproxy']['port']
-UPSTREAM_IP = cfg['upstream']['ip']
-TLS_HOSTNAME = cfg['upstream']['hostname']
-
-sel = selectors.DefaultSelector()
-
 def receive_message(sock):
     (wire, host) = sock.recvfrom(1024)
     q = message.from_wire(wire)
@@ -79,6 +53,33 @@ def service_connection(key, mask):
 
 
 if __name__=="__main__":
+
+
+    # General config
+    f = Figlet(font='slant')
+
+    # Load Config
+    with open("./dnproxy.yml", "r") as configfile:
+        cfg = yaml.load(configfile, Loader=yaml.FullLoader)
+
+    # create logger
+    logger = logging.getLogger('dnproxy')
+    logger.setLevel(logging.DEBUG)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    formatter = logging.Formatter("%(asctime)s - %(name)s - [%(levelname)s] - %(message)s ")
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
+    # Init
+    logger.info(f.renderText('dnproxy'))
+
+    HOST = cfg['dnproxy']['host']
+    PORT = cfg['dnproxy']['port']
+    UPSTREAM_IP = cfg['upstream']['ip']
+    TLS_HOSTNAME = cfg['upstream']['hostname']
+
+    sel = selectors.DefaultSelector()
 
     # Sockets Creations
     
