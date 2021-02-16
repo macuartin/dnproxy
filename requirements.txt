@@ -4,8 +4,15 @@ chardet==4.0.0
 cryptography==3.4.5
 dnspython==2.1.0
 idna==2.10
+lxml==4.6.2
 pycparser==2.20
 pyfiglet==0.8.post1
+pytils==0.3
+PyYAML==5.4.1
 requests==2.25.1
 requests-toolbelt==0.9.1
+selectors==0.0.14
+six==1.15.0
 urllib3==1.26.3
+user-agent==0.1.9
+weblib==0.1.30
