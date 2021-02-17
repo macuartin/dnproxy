@@ -5,7 +5,9 @@
 
 dnproxy is a tool that allows applications to query a DNS-over-TLS server.
 
-dnproxy handle TCP and UDP requests and allow multiple incoming requests at the same time.
+dnproxy handle TCP and UDP requests and allow multiple incoming requests at the same time. All this possible thanks to the joint use of the socket and dns libraries.
+
+dnproxy creates two sockets, one for each protocol implemented and using the selectors module it evaluates the type of socket that receives the request and thus can handle the message appropriately according to the communication protocol with which it was sent.
 
 ## Prerequisites
 
