@@ -16,9 +16,10 @@ def receive_message(sock):
     q = message.from_wire(wire)
     logger.info(f'UDP Socket - Query ID: {q.id}, Question:{q.question}')
     r = query.tls(q, UPSTREAM_IP, server_hostname=TLS_HOSTNAME)
-    logger.info(f'UDP Socket - Query ID: {q.id}, Answer: {r.answer}')
+    logger.info(f'UDP Socket - Query ID: {q.id}, Answer: {r.answer}, {r.additional}')
     wire = r.to_wire()
     sock.sendto(wire, host)
+
 
 def accept_wrapper(sock):
     conn, addr = sock.accept()  # Should be ready to read
@@ -27,6 +28,7 @@ def accept_wrapper(sock):
     data = types.SimpleNamespace(addr=addr, inb=b"", outb=b"")
     events = selectors.EVENT_READ | selectors.EVENT_WRITE
     sel.register(conn, events, data=data)
+
 
 def service_connection(key, mask):
     sock = key.fileobj
@@ -44,7 +46,7 @@ def service_connection(key, mask):
             q = message.from_wire(data.outb[2:])
             logger.info(f'TCP Socket - Question from {data.addr[0]}:{data.addr[1]}, Query ID: {q.id}, Question:{q.question}')
             r = query.tls(q, UPSTREAM_IP, server_hostname=TLS_HOSTNAME)
-            logger.info(f'TCP Socket - Response to {data.addr[0]}:{data.addr[1]}, Query ID: {q.id}, Answer: {r.answer}')
+            logger.info(f'TCP Socket - Response to {data.addr[0]}:{data.addr[1]}, Query ID: {q.id}, Answer: {r.answer}, {r.additional}')
             wire = r.to_wire()
             length = binascii.unhexlify("%04x" % len(wire))
             if r:
@@ -53,7 +55,6 @@ def service_connection(key, mask):
 
 
 if __name__=="__main__":
-
 
     # General config
     f = Figlet(font='slant')
