@@ -64,6 +64,7 @@ The dnproxy.yml file required the follow params:
 | upstream.ip | str | a str containing an IPv4 or IPv6 address, where to send the message |
 | upstream.hostname | str | a str containing the server’s hostname. |
 
+Note: For Docker implementation it's recommended use 0.0.0.0 as dnproxy.host
 
 ## Check service
 
@@ -80,9 +81,31 @@ kdig @<CONTAINER IP> -t A google.com +tcp
 ```
 if you are running dnproxy locally then CONTAINER IP will be 127.0.0.1
 
+## Security and Architecture Concerns
+
+Imagining that dnproxy will be deployed in the public cloud and will be integrated into a solution with a distributed and microservices-oriented architecture, the following implementation is proposed:
+
+1. Deploying dnproxy as a isolate service in a private subnet with the following security group rules:
+
+| type | from_port | to_port | protocol | source/destination |
+| ------ | ------ | ------ | ------ | ------ |
+| egress | 0 | 0 | -1 | 0.0.0.0/0 |
+| ingress | dnproxy.port | dnproxy.port | tcp | backend security groups |
+| ingress | dnproxy.port | dnproxy.port | udp | backend security groups |
+
+I think that with these rules you have the minimum access so that the rest of the services can use dnproxy and dnproxy can send request to others DNS.
+
+2. dnproxy is containerized so it could be deployed in any kubernetes cluster under a LoadBalancer service, using a DNS like AWS route53, the LoadBalancer could be registered so that dnproxy can be used under a specific domain for the rest of the microservices. Being in a K8S cluster it could scale according to the cluster parameters.
+
+## Future improvements
+
+* Helm Chart to K8S deploy.
+* Enable DNS over HTTPS (DoH).
+* Create a service discovery tool based on dnproxy.
+
 ## Contributing
 
-To contribute to <project_name>, follow these steps:
+To contribute to dnproxy, follow these steps:
 
 1. Fork this repository.
 2. Create a branch: `git checkout -b <branch_name>`.
@@ -92,16 +115,6 @@ To contribute to <project_name>, follow these steps:
 
 Alternatively see the GitHub documentation on [creating a pull request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request).
 
-## Further reading / Useful links
-
-* Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-* Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-
 ## Contact
 
-If you want to contact me you can reach me at <your_email@address.com>.
-
-## License
-<!--- If you're not sure which open license to use see https://choosealicense.com/--->
-
-This project uses the following license: [<license_name>](<link>).
+If you want to contact me you can reach me at <macuartin@gmail.com>.
