@@ -11,6 +11,7 @@ from pyfiglet import Figlet
 import binascii
 import time
 
+
 def receive_message(sock):
     (wire, host) = sock.recvfrom(1024)
     q = message.from_wire(wire)
@@ -22,10 +23,10 @@ def receive_message(sock):
 
 
 def accept_wrapper(sock):
-    conn, addr = sock.accept()  # Should be ready to read
-    logger.debug(f"TCP Socket - Accepted connection from {addr[0]}:{addr[1]}")
+    conn, addr = sock.accept()
+    logger.debug(f'TCP Socket - Accepted connection from {addr[0]}:{addr[1]}')
     conn.setblocking(False)
-    data = types.SimpleNamespace(addr=addr, inb=b"", outb=b"")
+    data = types.SimpleNamespace(addr=addr, inb=b'', outb=b'')
     events = selectors.EVENT_READ | selectors.EVENT_WRITE
     sel.register(conn, events, data=data)
 
@@ -38,7 +39,7 @@ def service_connection(key, mask):
         if recv_data:
             data.outb += recv_data
         else:
-            logger.debug(f"TCP Socket - Closing connection to {data.addr[0]}:{data.addr[1]}")
+            logger.debug(f'TCP Socket - Closing connection to {data.addr[0]}:{data.addr[1]}')
             sel.unregister(sock)
             sock.close()
     if mask & selectors.EVENT_WRITE:
@@ -48,19 +49,17 @@ def service_connection(key, mask):
             r = query.tls(q, UPSTREAM_IP, server_hostname=TLS_HOSTNAME)
             logger.info(f'TCP Socket - Response to {data.addr[0]}:{data.addr[1]}, Query ID: {q.id}, Answer: {r.answer}, {r.additional}')
             wire = r.to_wire()
-            length = binascii.unhexlify("%04x" % len(wire))
+            length = binascii.unhexlify('%04x' % len(wire))
             if r:
                 sent = sock.send(length+wire)
                 data.outb = data.outb[sent:]
 
 
-if __name__=="__main__":
-
-    # General config
-    f = Figlet(font='slant')
+if __name__ == '__main__':
 
     # Load Config
-    with open("./dnproxy.yml", "r") as configfile:
+    f = Figlet(font='slant')
+    with open('./dnproxy.yml', 'r') as configfile:
         cfg = yaml.load(configfile, Loader=yaml.FullLoader)
 
     # create logger
@@ -68,7 +67,7 @@ if __name__=="__main__":
     logger.setLevel(logging.DEBUG)
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
-    formatter = logging.Formatter("%(asctime)s - %(name)s - [%(levelname)s] - %(message)s ")
+    formatter = logging.Formatter('%(asctime)s - %(name)s - [%(levelname)s] - %(message)s ')
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
@@ -83,17 +82,17 @@ if __name__=="__main__":
     sel = selectors.DefaultSelector()
 
     # Sockets Creations
-    
+
     tsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     tsock.bind((HOST, PORT))
     tsock.listen()
-    logger.info(f"TCP Socket - Listening on {HOST}:{PORT}")
+    logger.info(f'TCP Socket - Listening on {HOST}:{PORT}')
     tsock.setblocking(False)
     sel.register(tsock, selectors.EVENT_READ, data=None)
 
     usock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     usock.bind((HOST, PORT))
-    logger.info(f"UDP Socket - Listening on {HOST}:{PORT}")
+    logger.info(f'UDP Socket - Listening on {HOST}:{PORT}')
     sel.register(usock, selectors.EVENT_READ, data=None)
 
     try:
@@ -108,6 +107,6 @@ if __name__=="__main__":
                 else:
                     service_connection(key, mask)
     except KeyboardInterrupt:
-        logger.info("Caught keyboard interrupt, exiting")
+        logger.info('Caught keyboard interrupt, exiting')
     finally:
         sel.close()
