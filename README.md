@@ -103,7 +103,6 @@ I think that with these rules you have the minimum access so that the rest of th
 
 * Helm Chart to K8S deploy.
 * Enable DNS over HTTPS (DoH).
-* Create a service discovery tool based on dnproxy.
 
 ## Contributing
 
